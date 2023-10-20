@@ -1,3 +1,16 @@
+# Overview
+
+This is a modified version of Graph500 reference for Lucata. The intention here is to rip out the graph generator and compare it to those in beedrill or elsewhere. Beware the code is rough and likely undocumented.
+
+To build the pared-down generator, run the following:
+```
+cd src
+make lucata_generator
+```
+
+Like the original Graph500 project an MPI C compiler is all you need to build this.
+
+# Previous Docs from Graph500
 Graph500-3.0.0
 
 Compiling should be pretty straightforward as long as you have a valid MPI-3 library loaded in your PATH.

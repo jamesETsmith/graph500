@@ -9,6 +9,9 @@ GENERATOR_SOURCES = ../generator/graph_generator.c ../generator/make_graph.c ../
 SOURCES = main.c utils.c validate.c ../aml/aml.c
 HEADERS = common.h csr_reference.h bitmap_reference.h
 
+lucata_generator: lucata_generator.c utils.c ../aml/aml.c $(HEADERS) $(GENERATOR_SOURCES)
+	$(MPICC) $(CFLAGS) $(LDFLAGS) -o lucata_generator lucata_generator.c utils.c ../aml/aml.c $(GENERATOR_SOURCES) -lm
+
 graph500_reference_bfs_sssp: bfs_reference.c $(SOURCES) $(HEADERS) $(GENERATOR_SOURCES) csr_reference.c sssp_reference.c
 	$(MPICC) $(CFLAGS) -DSSSP $(LDFLAGS) -o graph500_reference_bfs_sssp bfs_reference.c sssp_reference.c csr_reference.c $(SOURCES) $(GENERATOR_SOURCES) -lm
 

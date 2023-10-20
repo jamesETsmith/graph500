@@ -3,3 +3,4 @@ src/graph500_*
 *.bin
 *.json
 *.o
+src/lucata_generator
