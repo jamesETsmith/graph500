@@ -1,2 +1,5 @@
 *~
 src/graph500_*
+*.bin
+*.json
+*.o
