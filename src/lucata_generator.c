@@ -149,11 +149,11 @@ int main(int argc, char** argv) {
     // MPI_File_set_view(tg.edgefile, 0, packed_edge_mpi_type,
     //                   packed_edge_mpi_type, "native", MPI_INFO_NULL);
     if (rank == 0) {
-      size_t sz =
-          snprintf(lucata_settings.header, 1023,
-                   "--format el64 --num_edges %lu --num_vertices "
-                   "%lu --is_undirected --seed0 %lu --seed1 %lu\n",
-                   tg.nglobaledges, tg.nglobaledges / 16 * 2, seed1, seed2);
+      size_t sz = snprintf(lucata_settings.header, 1023,
+                           "--format el64 --num_edges %lu --num_vertices "
+                           "%lu --is_undirected --seed0 %lu --seed1 %lu\n",
+                           tg.nglobaledges, tg.nglobaledges / edgefactor * 2,
+                           seed1, seed2);
       lucata_settings.filesize = tg.nglobaledges * sizeof(packed_edge) + sz;
       lucata_settings.header_size = sz;
       printf("HERE'S the HEADER:\n%s", lucata_settings.header);
