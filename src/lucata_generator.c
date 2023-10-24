@@ -92,7 +92,7 @@ int main(int argc, char** argv) {
   }
 
   const char* filename = getenv("TMPFILE");
-  const int reuse_file = getenv("REUSEFILE") ? 1 : 0;
+  // const int reuse_file = getenv("REUSEFILE") ? 1 : 0;
   /* If filename is NULL, store data in memory */
 
   tuple_graph tg;
@@ -106,46 +106,47 @@ int main(int argc, char** argv) {
     int is_opened = 0;
     int mode = MPI_MODE_RDWR | MPI_MODE_EXCL | MPI_MODE_UNIQUE_OPEN;
 
-    if (!reuse_file) {
-      mode |= MPI_MODE_CREATE;
-      //   mode |= MPI_MODE_CREATE | MPI_MODE_DELETE_ON_CLOSE;
-      if (rank == 0) {
-        if (access(filename, F_OK) == 0) {
-          fprintf(stdout, "deleting %s\n", filename);
+    // if (!reuse_file) {
+    mode |= MPI_MODE_CREATE;
+    //   mode |= MPI_MODE_CREATE | MPI_MODE_DELETE_ON_CLOSE;
+    if (rank == 0) {
+      if (access(filename, F_OK) == 0) {
+        fprintf(stdout, "deleting %s\n", filename);
 
-          if (remove(filename)) {
-            fprintf(stdout, "couldn't delete file\n");
-          }
+        if (remove(filename)) {
+          fprintf(stdout, "couldn't delete file\n");
         }
       }
-      MPI_Barrier(MPI_COMM_WORLD);
-    } else {
-      MPI_File_set_errhandler(MPI_FILE_NULL, MPI_ERRORS_RETURN);
-
-      if (MPI_File_open(MPI_COMM_WORLD, (char*)filename, mode, MPI_INFO_NULL,
-                        &tg.edgefile)) {
-        if (0 == rank && getenv("VERBOSE"))
-          fprintf(stderr, "%d: failed to open %s, creating\n", rank, filename);
-
-        mode |= MPI_MODE_RDWR | MPI_MODE_CREATE;
-      } else {
-        MPI_Offset size;
-        MPI_File_get_size(tg.edgefile, &size);
-        if (size == tg.nglobaledges * sizeof(packed_edge)) {
-          is_opened = 1;
-          tg.write_file = 0;
-        } else /* Size doesn't match, assume different parameters. */
-          MPI_File_close(&tg.edgefile);
-      }
     }
+    MPI_Barrier(MPI_COMM_WORLD);
+    // }
+    //  else {
+    //   MPI_File_set_errhandler(MPI_FILE_NULL, MPI_ERRORS_RETURN);
+
+    //   if (MPI_File_open(MPI_COMM_WORLD, (char*)filename, mode, MPI_INFO_NULL,
+    //                     &tg.edgefile)) {
+    //     if (0 == rank && getenv("VERBOSE"))
+    //       fprintf(stderr, "%d: failed to open %s, creating\n", rank,
+    //       filename);
+
+    //     mode |= MPI_MODE_RDWR | MPI_MODE_CREATE;
+    //   } else {
+    //     MPI_Offset size;
+    //     MPI_File_get_size(tg.edgefile, &size);
+    //     if (size == tg.nglobaledges * sizeof(packed_edge)) {
+    //       is_opened = 1;
+    //       tg.write_file = 0;
+    //     } else /* Size doesn't match, assume different parameters. */
+    //       MPI_File_close(&tg.edgefile);
+    //   }
+    // }
     MPI_File_set_errhandler(MPI_FILE_NULL, MPI_ERRORS_ARE_FATAL);
-    if (!is_opened) {
-      MPI_File_open(MPI_COMM_WORLD, (char*)filename, mode, MPI_INFO_NULL,
-                    &tg.edgefile);
-      //   MPI_File_set_size(tg.edgefile, tg.nglobaledges *
-      //   sizeof(packed_edge));
-      MPI_File_set_size(tg.edgefile, lucata_settings.filesize);
-    }
+    // if (!is_opened) {
+    MPI_File_open(MPI_COMM_WORLD, (char*)filename, mode, MPI_INFO_NULL,
+                  &tg.edgefile);
+    //   MPI_File_set_size(tg.edgefile, tg.nglobaledges *
+    //   sizeof(packed_edge));
+    // }
     // MPI_File_set_view(tg.edgefile, 0, packed_edge_mpi_type,
     //                   packed_edge_mpi_type, "native", MPI_INFO_NULL);
     if (rank == 0) {
@@ -163,9 +164,13 @@ int main(int argc, char** argv) {
       //   edge_count,
       // packed_edge_mpi_type, MPI_STATUS_IGNORE);
     }
+    // MPI_Barrier(MPI_COMM_WORLD);
+    // MPI_File_set_size(tg.edgefile, lucata_settings.filesize);
     MPI_Barrier(MPI_COMM_WORLD);
-    MPI_File_set_view(tg.edgefile, 0, packed_edge_mpi_type,
-                      packed_edge_mpi_type, "native", MPI_INFO_NULL);
+
+    MPI_File_set_view(tg.edgefile, lucata_settings.header_size,
+                      packed_edge_mpi_type, packed_edge_mpi_type, "native",
+                      MPI_INFO_NULL);
     MPI_File_set_atomicity(tg.edgefile, 0);
   }  // end if (tg.data_in_file)
 
