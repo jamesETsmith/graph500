@@ -160,14 +160,19 @@ int main(int argc, char** argv) {
       printf("HERE'S the HEADER:\n%s", lucata_settings.header);
       MPI_File_write(tg.edgefile, lucata_settings.header,
                      lucata_settings.header_size, MPI_CHAR, MPI_STATUS_IGNORE);
-      //   MPI_File_write_at(tg.edgefile, start_edge_index, actual_buf,
-      //   edge_count,
-      // packed_edge_mpi_type, MPI_STATUS_IGNORE);
+      // MPI_File_write_at(tg.edgefile, start_edge_index, actual_buf,
+      // edge_count,
+      //                   packed_edge_mpi_type, MPI_STATUS_IGNORE);
     }
+    // Make sure lucata_settings.header_size is set on all procs
+    MPI_Bcast(&lucata_settings.header_size, 1, MPI_UNSIGNED_LONG, 0,
+              MPI_COMM_WORLD);
     // MPI_Barrier(MPI_COMM_WORLD);
-    // MPI_File_set_size(tg.edgefile, lucata_settings.filesize);
-    MPI_Barrier(MPI_COMM_WORLD);
 
+    // MPI_File_set_size(tg.edgefile, lucata_settings.filesize);
+    // MPI_Barrier(MPI_COMM_WORLD);
+    // MPI_File_set_view(tg.edgefile, 0, packed_edge_mpi_type,
+    //                   packed_edge_mpi_type, "native", MPI_INFO_NULL);
     MPI_File_set_view(tg.edgefile, lucata_settings.header_size,
                       packed_edge_mpi_type, packed_edge_mpi_type, "native",
                       MPI_INFO_NULL);
